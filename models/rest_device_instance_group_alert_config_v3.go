@@ -8,8 +8,10 @@ package models
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // RestDeviceInstanceGroupAlertConfigV3 rest device instance group alert config v3
@@ -20,9 +22,9 @@ type RestDeviceInstanceGroupAlertConfigV3 struct {
 	// ad adv setting enabled
 	AdAdvSettingEnabled bool `json:"adAdvSettingEnabled,omitempty"`
 
-	// The count that the alert must exist for this many poll cycles before the alert will be cleared
-	// Format: byte
-	AlertClearTransitionInterval strfmt.Base64 `json:"alertClearTransitionInterval,omitempty"`
+	// The count that the alert must exist for this many poll cycles before the alert will be cleared (0-60)
+	// Example: 0
+	AlertClearTransitionInterval int32 `json:"alertClearTransitionInterval,omitempty"`
 
 	// alert enable
 	AlertEnable bool `json:"alertEnable,omitempty"`
@@ -33,13 +35,13 @@ type RestDeviceInstanceGroupAlertConfigV3 struct {
 	// alert expr note
 	AlertExprNote string `json:"alertExprNote,omitempty"`
 
-	// The triggered alert level if we cannot collect data for this datapoint. The values can be 0-4 (0:unused alert, 1:alert ok, 2:warn alert, 2:error alert, 4:critical alert)
-	// Format: byte
-	AlertForNoData strfmt.Base64 `json:"alertForNoData,omitempty"`
+	// The triggered alert level if we cannot collect data for this datapoint. The values can be 1-4 (1:no alert, 2:warn alert, 3:error alert, 4:critical alert)
+	// Example: 1
+	AlertForNoData int32 `json:"alertForNoData,omitempty"`
 
-	// The count that the alert must exist for this many poll cycles before it will be triggered
-	// Format: byte
-	AlertTransitionInterval strfmt.Base64 `json:"alertTransitionInterval,omitempty"`
+	// The count that the alert must exist for this many poll cycles before it will be triggered (0-60)
+	// Example: 0
+	AlertTransitionInterval int32 `json:"alertTransitionInterval,omitempty"`
 
 	// critical ad adv setting
 	CriticalAdAdvSetting string `json:"criticalAdAdvSetting,omitempty"`
@@ -51,16 +53,19 @@ type RestDeviceInstanceGroupAlertConfigV3 struct {
 	ErrorAdAdvSetting string `json:"errorAdAdvSetting,omitempty"`
 
 	// The count that the alert must exist for this many poll cycles before the alert will be cleared
-	// Format: byte
-	GlobalAlertClearTransitionInterval strfmt.Base64 `json:"globalAlertClearTransitionInterval,omitempty"`
+	// Example: 0
+	// Read Only: true
+	GlobalAlertClearTransitionInterval int32 `json:"globalAlertClearTransitionInterval,omitempty"`
 
-	// The triggered alert level if we cannot collect data for this datapoint. The values can be 0-4 (0:unused alert, 1:alert ok, 2:warn alert, 2:error alert, 4:critical alert)
-	// Format: byte
-	GlobalAlertForNoData strfmt.Base64 `json:"globalAlertForNoData,omitempty"`
+	// The triggered alert level if we cannot collect data for this datapoint. The values can be 1-4 (1:no alert, 2:warn alert, 3:error alert, 4:critical alert)
+	// Example: 1
+	// Read Only: true
+	GlobalAlertForNoData int32 `json:"globalAlertForNoData,omitempty"`
 
 	// The count that the alert must exist for this many poll cycles before it will be triggered
-	// Format: byte
-	GlobalAlertTransitionInterval strfmt.Base64 `json:"globalAlertTransitionInterval,omitempty"`
+	// Example: 0
+	// Read Only: true
+	GlobalAlertTransitionInterval int32 `json:"globalAlertTransitionInterval,omitempty"`
 
 	// warn ad adv setting
 	WarnAdAdvSetting string `json:"warnAdAdvSetting,omitempty"`
@@ -71,8 +76,52 @@ func (m *RestDeviceInstanceGroupAlertConfigV3) Validate(formats strfmt.Registry)
 	return nil
 }
 
-// ContextValidate validates this rest device instance group alert config v3 based on context it is used
+// ContextValidate validate this rest device instance group alert config v3 based on the context it is used
 func (m *RestDeviceInstanceGroupAlertConfigV3) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateGlobalAlertClearTransitionInterval(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGlobalAlertForNoData(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGlobalAlertTransitionInterval(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *RestDeviceInstanceGroupAlertConfigV3) contextValidateGlobalAlertClearTransitionInterval(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertClearTransitionInterval", "body", int32(m.GlobalAlertClearTransitionInterval)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *RestDeviceInstanceGroupAlertConfigV3) contextValidateGlobalAlertForNoData(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertForNoData", "body", int32(m.GlobalAlertForNoData)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *RestDeviceInstanceGroupAlertConfigV3) contextValidateGlobalAlertTransitionInterval(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertTransitionInterval", "body", int32(m.GlobalAlertTransitionInterval)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

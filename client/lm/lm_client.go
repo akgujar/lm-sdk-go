@@ -90,6 +90,35 @@ func (a *Client) AckCollectorDownAlertByID(params *AckCollectorDownAlertByIDPara
 }
 
 /*
+AddAccessGroup creates a access group
+*/
+func (a *Client) AddAccessGroup(params *AddAccessGroupParams) (*AddAccessGroupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAccessGroupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "addAccessGroup",
+		Method:             "POST",
+		PathPattern:        "/setting/accessgroup/add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &AddAccessGroupReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddAccessGroupOK), nil
+
+}
+
+/*
 AddAdmin adds user
 */
 func (a *Client) AddAdmin(params *AddAdminParams) (*AddAdminOK, error) {
@@ -931,6 +960,35 @@ func (a *Client) CollectDeviceConfigSourceConfig(params *CollectDeviceConfigSour
 }
 
 /*
+DeleteAccessGroup deletes access group
+*/
+func (a *Client) DeleteAccessGroup(params *DeleteAccessGroupParams) (*DeleteAccessGroupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteAccessGroupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "deleteAccessGroup",
+		Method:             "DELETE",
+		PathPattern:        "/setting/accessgroup/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &DeleteAccessGroupReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*DeleteAccessGroupOK), nil
+
+}
+
+/*
 DeleteAdminByID deletes user
 */
 func (a *Client) DeleteAdminByID(params *DeleteAdminByIDParams) (*DeleteAdminByIDOK, error) {
@@ -1511,6 +1569,35 @@ func (a *Client) DiscoverSubscriptions(params *DiscoverSubscriptionsParams) (*Di
 }
 
 /*
+EscalatedAlertByID escalates alert by id
+*/
+func (a *Client) EscalatedAlertByID(params *EscalatedAlertByIDParams) (*EscalatedAlertByIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewEscalatedAlertByIDParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "escalatedAlertById",
+		Method:             "POST",
+		PathPattern:        "/alert/alerts/{id}/escalate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &EscalatedAlertByIDReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*EscalatedAlertByIDOK), nil
+
+}
+
+/*
 ExecuteDebugCommand executes a collector debug command
 */
 func (a *Client) ExecuteDebugCommand(params *ExecuteDebugCommandParams) (*ExecuteDebugCommandOK, error) {
@@ -1623,6 +1710,64 @@ func (a *Client) GenerateReportByID(params *GenerateReportByIDParams) (*Generate
 		return nil, err
 	}
 	return result.(*GenerateReportByIDOK), nil
+
+}
+
+/*
+GetAccessGroupByID gets access group by id
+*/
+func (a *Client) GetAccessGroupByID(params *GetAccessGroupByIDParams) (*GetAccessGroupByIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetAccessGroupByIDParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getAccessGroupById",
+		Method:             "GET",
+		PathPattern:        "/setting/accessgroup/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetAccessGroupByIDReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetAccessGroupByIDOK), nil
+
+}
+
+/*
+GetAccessGroupList gets access group list
+*/
+func (a *Client) GetAccessGroupList(params *GetAccessGroupListParams) (*GetAccessGroupListOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetAccessGroupListParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getAccessGroupList",
+		Method:             "GET",
+		PathPattern:        "/setting/accessgroup",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetAccessGroupListReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetAccessGroupListOK), nil
 
 }
 
@@ -2841,6 +2986,35 @@ func (a *Client) GetDeviceDatasourceInstanceGraphData(params *GetDeviceDatasourc
 		return nil, err
 	}
 	return result.(*GetDeviceDatasourceInstanceGraphDataOK), nil
+
+}
+
+/*
+GetDeviceDatasourceInstanceGroupByID gets device datasource instance group
+*/
+func (a *Client) GetDeviceDatasourceInstanceGroupByID(params *GetDeviceDatasourceInstanceGroupByIDParams) (*GetDeviceDatasourceInstanceGroupByIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetDeviceDatasourceInstanceGroupByIDParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getDeviceDatasourceInstanceGroupById",
+		Method:             "GET",
+		PathPattern:        "/device/devices/{deviceId}/devicedatasources/{deviceDsId}/groups/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetDeviceDatasourceInstanceGroupByIDReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetDeviceDatasourceInstanceGroupByIDOK), nil
 
 }
 
@@ -4672,6 +4846,35 @@ func (a *Client) GetWidgetListByDashboardID(params *GetWidgetListByDashboardIDPa
 }
 
 /*
+PatchAccessGroup updates access group
+*/
+func (a *Client) PatchAccessGroup(params *PatchAccessGroupParams) (*PatchAccessGroupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPatchAccessGroupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "patchAccessGroup",
+		Method:             "PATCH",
+		PathPattern:        "/setting/accessgroup/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PatchAccessGroupReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*PatchAccessGroupOK), nil
+
+}
+
+/*
 PatchAdminByID updates user
 */
 func (a *Client) PatchAdminByID(params *PatchAdminByIDParams) (*PatchAdminByIDOK, error) {
@@ -5227,35 +5430,6 @@ func (a *Client) PatchEscalationChainByID(params *PatchEscalationChainByIDParams
 }
 
 /*
-PatchInstancesAlertThreshold updates instances alert threshold setting the threshold at default group is not allowed
-*/
-func (a *Client) PatchInstancesAlertThreshold(params *PatchInstancesAlertThresholdParams) (*PatchInstancesAlertThresholdOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPatchInstancesAlertThresholdParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "patchInstancesAlertThreshold",
-		Method:             "PATCH",
-		PathPattern:        "/device/devices/{deviceId}/devicedatasources/{deviceDsId}/groups/{dsigId}/datapoints/{dpId}/alertconfig",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &PatchInstancesAlertThresholdReader{formats: a.formats},
-		AuthInfo:           a.authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*PatchInstancesAlertThresholdOK), nil
-
-}
-
-/*
 PatchRecipientGroupByID updates recipient group
 */
 func (a *Client) PatchRecipientGroupByID(params *PatchRecipientGroupByIDParams) (*PatchRecipientGroupByIDOK, error) {
@@ -5629,6 +5803,35 @@ func (a *Client) TestSaaSAccount(params *TestSaaSAccountParams) (*TestSaaSAccoun
 		return nil, err
 	}
 	return result.(*TestSaaSAccountOK), nil
+
+}
+
+/*
+UpdateAccessGroup updates access group
+*/
+func (a *Client) UpdateAccessGroup(params *UpdateAccessGroupParams) (*UpdateAccessGroupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateAccessGroupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateAccessGroup",
+		Method:             "PUT",
+		PathPattern:        "/setting/accessgroup/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &UpdateAccessGroupReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateAccessGroupOK), nil
 
 }
 
@@ -6188,23 +6391,23 @@ func (a *Client) UpdateEscalationChainByID(params *UpdateEscalationChainByIDPara
 }
 
 /*
-UpdateInstancesAlertThreshold updates instances alert threshold setting the threshold at default group is not allowed
+UpdateInstanceGroupAlertThreshold updates instance group alert threshold setting the threshold at default group is not allowed
 */
-func (a *Client) UpdateInstancesAlertThreshold(params *UpdateInstancesAlertThresholdParams) (*UpdateInstancesAlertThresholdOK, error) {
+func (a *Client) UpdateInstanceGroupAlertThreshold(params *UpdateInstanceGroupAlertThresholdParams) (*UpdateInstanceGroupAlertThresholdOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateInstancesAlertThresholdParams()
+		params = NewUpdateInstanceGroupAlertThresholdParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateInstancesAlertThreshold",
+		ID:                 "updateInstanceGroupAlertThreshold",
 		Method:             "PUT",
 		PathPattern:        "/device/devices/{deviceId}/devicedatasources/{deviceDsId}/groups/{dsigId}/datapoints/{dpId}/alertconfig",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
-		Reader:             &UpdateInstancesAlertThresholdReader{formats: a.formats},
+		Reader:             &UpdateInstanceGroupAlertThresholdReader{formats: a.formats},
 		AuthInfo:           a.authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
@@ -6212,7 +6415,7 @@ func (a *Client) UpdateInstancesAlertThreshold(params *UpdateInstancesAlertThres
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateInstancesAlertThresholdOK), nil
+	return result.(*UpdateInstanceGroupAlertThresholdOK), nil
 
 }
 

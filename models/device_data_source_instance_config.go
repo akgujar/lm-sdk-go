@@ -28,6 +28,10 @@ type DeviceDataSourceInstanceConfig struct {
 	// Read Only: true
 	ChangeStatus string `json:"changeStatus,omitempty"`
 
+	// Version compared with and found difference
+	// Read Only: true
+	ComparedWith string `json:"comparedWith,omitempty"`
+
 	// Configuration file content
 	// Read Only: true
 	Config string `json:"config,omitempty"`
@@ -167,6 +171,10 @@ func (m *DeviceDataSourceInstanceConfig) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateComparedWith(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateConfig(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -258,6 +266,15 @@ func (m *DeviceDataSourceInstanceConfig) contextValidateAlerts(ctx context.Conte
 func (m *DeviceDataSourceInstanceConfig) contextValidateChangeStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "changeStatus", "body", string(m.ChangeStatus)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceDataSourceInstanceConfig) contextValidateComparedWith(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "comparedWith", "body", string(m.ComparedWith)); err != nil {
 		return err
 	}
 

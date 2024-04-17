@@ -62,7 +62,7 @@ type EventSource interface {
 	ClearAfterAck() bool
 	SetClearAfterAck(bool)
 
-	// The EventSource collector type. The values can be wineventlog | syslog | snmptrap | echo | logfile | scriptevent | awsrss | azurerss | azureadvisor | gcpatom | awsrdspievent | azureresourcehealthevent | azureemergingissue | azureloganalyticsworkspacesevent | awstrustedadvisor | awshealth | ipmievent
+	// The EventSource collector type. The values can be wineventlog | syslog | snmptrap | echo | logfile | scriptevent | awsrss | azurerss | azureadvisor | gcpatom | awsrdspievent | azureresourcehealthevent | azureemergingissue | azureloganalyticsworkspacesevent | awstrustedadvisor | awshealth | awsorganizationalhealth | ipmievent
 	Collector() string
 	SetCollector(string)
 
@@ -426,6 +426,12 @@ func unmarshalEventSource(data []byte, consumer runtime.Consumer) (EventSource, 
 		return &result, nil
 	case "RestAwsHealthEventSource":
 		var result RestAwsHealthEventSource
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "RestAwsOrganizationalHealthEventSource":
+		var result RestAwsOrganizationalHealthEventSource
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}

@@ -20,8 +20,8 @@ import (
 type DeviceGroupAlertThresholdInfo struct {
 
 	// The count that the alert must exist for this many poll cycles before the alert will be cleared
-	// Format: byte
-	AlertClearTransitionInterval strfmt.Base64 `json:"alertClearTransitionInterval,omitempty"`
+	// Example: 0
+	AlertClearTransitionInterval int32 `json:"alertClearTransitionInterval,omitempty"`
 
 	// alert enabled
 	// Read Only: true
@@ -31,13 +31,13 @@ type DeviceGroupAlertThresholdInfo struct {
 	// Read Only: true
 	AlertExpr string `json:"alertExpr,omitempty"`
 
-	// The triggered alert level if we cannot collect data for this datapoint. The values can be 0-4 (0:unused alert, 1:alert ok, 2:warn alert, 2:error alert, 4:critical alert)
-	// Format: byte
-	AlertForNoData strfmt.Base64 `json:"alertForNoData,omitempty"`
+	// The triggered alert level if we cannot collect data for this datapoint. The values can be 1-4 (1:no alert, 2:warn alert, 3:error alert, 4:critical alert)
+	// Example: 1
+	AlertForNoData int32 `json:"alertForNoData,omitempty"`
 
 	// The count that the alert must exist for this many poll cycles before it will be triggered
-	// Format: byte
-	AlertTransitionInterval strfmt.Base64 `json:"alertTransitionInterval,omitempty"`
+	// Example: 0
+	AlertTransitionInterval int32 `json:"alertTransitionInterval,omitempty"`
 
 	// enable anomaly alert generation
 	// Read Only: true

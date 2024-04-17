@@ -106,6 +106,18 @@ func unmarshalAutoDiscoveryMethod(data []byte, consumer runtime.Consumer) (AutoD
 			return nil, err
 		}
 		return &result, nil
+	case "AwsGlobalNetworkDeviceMethod":
+		var result AwsGlobalNetworkDeviceMethod
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "AwsGlobalNetworkLinkMethod":
+		var result AwsGlobalNetworkLinkMethod
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "AwsGlobalWebACLDiscoveryMethodV3":
 		var result AwsGlobalWebACLDiscoveryMethodV3
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -222,6 +234,18 @@ func unmarshalAutoDiscoveryMethod(data []byte, consumer runtime.Consumer) (AutoD
 		return &result, nil
 	case "AzureReplicationJobDiscoveryMethod":
 		var result AzureReplicationJobDiscoveryMethod
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "AzureServiceBusQueue":
+		var result AzureServiceBusQueue
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "AzureServiceBusTopic":
+		var result AzureServiceBusTopic
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}

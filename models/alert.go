@@ -47,6 +47,10 @@ type Alert struct {
 	// Read Only: true
 	AdAlertDesc string `json:"adAlertDesc,omitempty"`
 
+	// Alert group entity value for stateful log alerts
+	// Read Only: true
+	AlertGroupEntityValue string `json:"alertGroupEntityValue,omitempty"`
+
 	// The value that triggered the alert
 	// Read Only: true
 	AlertValue string `json:"alertValue,omitempty"`
@@ -244,6 +248,10 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateAdAlertDesc(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAlertGroupEntityValue(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -453,6 +461,15 @@ func (m *Alert) contextValidateAdAlert(ctx context.Context, formats strfmt.Regis
 func (m *Alert) contextValidateAdAlertDesc(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "adAlertDesc", "body", string(m.AdAlertDesc)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateAlertGroupEntityValue(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "alertGroupEntityValue", "body", string(m.AlertGroupEntityValue)); err != nil {
 		return err
 	}
 

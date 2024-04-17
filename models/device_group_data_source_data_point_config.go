@@ -22,9 +22,9 @@ type DeviceGroupDataSourceDataPointConfig struct {
 	// ad adv setting enabled
 	AdAdvSettingEnabled bool `json:"adAdvSettingEnabled,omitempty"`
 
-	// The count that the alert must exist for this many poll cycles before the alert will be cleared
-	// Format: byte
-	AlertClearTransitionInterval strfmt.Base64 `json:"alertClearTransitionInterval,omitempty"`
+	// The count that the alert must exist for this many poll cycles before the alert will be cleared (0-60)
+	// Example: 0
+	AlertClearTransitionInterval int32 `json:"alertClearTransitionInterval,omitempty"`
 
 	// alert expr
 	// Required: true
@@ -33,13 +33,13 @@ type DeviceGroupDataSourceDataPointConfig struct {
 	// alert expr note
 	AlertExprNote string `json:"alertExprNote,omitempty"`
 
-	// The triggered alert level if we cannot collect data for this datapoint. The values can be 0-4 (0:unused alert, 1:alert ok, 2:warn alert, 2:error alert, 4:critical alert)
-	// Format: byte
-	AlertForNoData strfmt.Base64 `json:"alertForNoData,omitempty"`
+	// The triggered alert level if we cannot collect data for this datapoint. The values can be 1-4 (1:no alert, 2:warn alert, 3:error alert, 4:critical alert)
+	// Example: 1
+	AlertForNoData int32 `json:"alertForNoData,omitempty"`
 
-	// The count that the alert must exist for this many poll cycles before it will be triggered
-	// Format: byte
-	AlertTransitionInterval strfmt.Base64 `json:"alertTransitionInterval,omitempty"`
+	// The count that the alert must exist for this many poll cycles before it will be triggered (0-60)
+	// Example: 0
+	AlertTransitionInterval int32 `json:"alertTransitionInterval,omitempty"`
 
 	// Collection Interval
 	// Read Only: true
@@ -73,20 +73,23 @@ type DeviceGroupDataSourceDataPointConfig struct {
 	ErrorAdAdvSetting string `json:"errorAdAdvSetting,omitempty"`
 
 	// The count that the alert must exist for this many poll cycles before the alert will be cleared
-	// Format: byte
-	GlobalAlertClearTransitionInterval strfmt.Base64 `json:"globalAlertClearTransitionInterval,omitempty"`
+	// Example: 0
+	// Read Only: true
+	GlobalAlertClearTransitionInterval int32 `json:"globalAlertClearTransitionInterval,omitempty"`
 
 	// global alert expr
 	// Read Only: true
 	GlobalAlertExpr string `json:"globalAlertExpr,omitempty"`
 
-	// The triggered alert level if we cannot collect data for this datapoint. The values can be 0-4 (0:unused alert, 1:alert ok, 2:warn alert, 2:error alert, 4:critical alert)
-	// Format: byte
-	GlobalAlertForNoData strfmt.Base64 `json:"globalAlertForNoData,omitempty"`
+	// The triggered alert level if we cannot collect data for this datapoint. The values can be 1-4 (1:no alert, 2:warn alert, 3:error alert, 4:critical alert)
+	// Example: 1
+	// Read Only: true
+	GlobalAlertForNoData int32 `json:"globalAlertForNoData,omitempty"`
 
 	// The count that the alert must exist for this many poll cycles before it will be triggered
-	// Format: byte
-	GlobalAlertTransitionInterval strfmt.Base64 `json:"globalAlertTransitionInterval,omitempty"`
+	// Example: 0
+	// Read Only: true
+	GlobalAlertTransitionInterval int32 `json:"globalAlertTransitionInterval,omitempty"`
 
 	// global enable anomaly alert generation
 	GlobalEnableAnomalyAlertGeneration string `json:"globalEnableAnomalyAlertGeneration,omitempty"`
@@ -159,7 +162,19 @@ func (m *DeviceGroupDataSourceDataPointConfig) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateGlobalAlertClearTransitionInterval(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateGlobalAlertExpr(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGlobalAlertForNoData(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGlobalAlertTransitionInterval(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -187,9 +202,36 @@ func (m *DeviceGroupDataSourceDataPointConfig) contextValidateDataPointDescripti
 	return nil
 }
 
+func (m *DeviceGroupDataSourceDataPointConfig) contextValidateGlobalAlertClearTransitionInterval(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertClearTransitionInterval", "body", int32(m.GlobalAlertClearTransitionInterval)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DeviceGroupDataSourceDataPointConfig) contextValidateGlobalAlertExpr(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "globalAlertExpr", "body", string(m.GlobalAlertExpr)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceGroupDataSourceDataPointConfig) contextValidateGlobalAlertForNoData(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertForNoData", "body", int32(m.GlobalAlertForNoData)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceGroupDataSourceDataPointConfig) contextValidateGlobalAlertTransitionInterval(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "globalAlertTransitionInterval", "body", int32(m.GlobalAlertTransitionInterval)); err != nil {
 		return err
 	}
 
