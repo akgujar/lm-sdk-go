@@ -53,10 +53,12 @@ func NewGetDeviceByIDParamsWithHTTPClient(client *http.Client) *GetDeviceByIDPar
 	}
 }
 
-/* GetDeviceByIDParams contains all the parameters to send to the API endpoint
-   for the get device by Id operation.
+/*
+GetDeviceByIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get device by Id operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDeviceByIDParams struct {
 
@@ -77,6 +79,9 @@ type GetDeviceByIDParams struct {
 	//
 	// Format: int32
 	ID int32
+
+	// NeedStcGrpAndSortedCP.
+	NeedStcGrpAndSortedCP *bool
 
 	// NetflowFilter.
 	NetflowFilter *string
@@ -194,6 +199,17 @@ func (o *GetDeviceByIDParams) SetID(id int32) {
 	o.ID = id
 }
 
+// WithNeedStcGrpAndSortedCP adds the needStcGrpAndSortedCP to the get device by Id params
+func (o *GetDeviceByIDParams) WithNeedStcGrpAndSortedCP(needStcGrpAndSortedCP *bool) *GetDeviceByIDParams {
+	o.SetNeedStcGrpAndSortedCP(needStcGrpAndSortedCP)
+	return o
+}
+
+// SetNeedStcGrpAndSortedCP adds the needStcGrpAndSortedCP to the get device by Id params
+func (o *GetDeviceByIDParams) SetNeedStcGrpAndSortedCP(needStcGrpAndSortedCP *bool) {
+	o.NeedStcGrpAndSortedCP = needStcGrpAndSortedCP
+}
+
 // WithNetflowFilter adds the netflowFilter to the get device by Id params
 func (o *GetDeviceByIDParams) WithNetflowFilter(netflowFilter *string) *GetDeviceByIDParams {
 	o.SetNetflowFilter(netflowFilter)
@@ -269,6 +285,23 @@ func (o *GetDeviceByIDParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	// path param id
 	if err := r.SetPathParam("id", swag.FormatInt32(o.ID)); err != nil {
 		return err
+	}
+
+	if o.NeedStcGrpAndSortedCP != nil {
+
+		// query param needStcGrpAndSortedCP
+		var qrNeedStcGrpAndSortedCP bool
+
+		if o.NeedStcGrpAndSortedCP != nil {
+			qrNeedStcGrpAndSortedCP = *o.NeedStcGrpAndSortedCP
+		}
+		qNeedStcGrpAndSortedCP := swag.FormatBool(qrNeedStcGrpAndSortedCP)
+		if qNeedStcGrpAndSortedCP != "" {
+
+			if err := r.SetQueryParam("needStcGrpAndSortedCP", qNeedStcGrpAndSortedCP); err != nil {
+				return err
+			}
+		}
 	}
 
 	if o.NetflowFilter != nil {

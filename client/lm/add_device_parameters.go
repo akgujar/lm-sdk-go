@@ -55,10 +55,12 @@ func NewAddDeviceParamsWithHTTPClient(client *http.Client) *AddDeviceParams {
 	}
 }
 
-/* AddDeviceParams contains all the parameters to send to the API endpoint
-   for the add device operation.
+/*
+AddDeviceParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add device operation.
+
+	Typically these are written to a http.Request.
 */
 type AddDeviceParams struct {
 
@@ -71,12 +73,15 @@ type AddDeviceParams struct {
 	AddFromWizard *bool
 
 	// Body.
-	Body *models.Device
+	Body models.Device
 
 	// End.
 	//
 	// Format: int64
 	End *int64
+
+	// NeedStcGrpAndSortedCP.
+	NeedStcGrpAndSortedCP *bool
 
 	// NetflowFilter.
 	NetflowFilter *string
@@ -105,13 +110,10 @@ func (o *AddDeviceParams) WithDefaults() *AddDeviceParams {
 func (o *AddDeviceParams) SetDefaults() {
 	var (
 		userAgentDefault = string("Logicmonitor/GO-SDK")
-
-		addFromWizardDefault = bool(false)
 	)
 
 	val := AddDeviceParams{
-		UserAgent:     &userAgentDefault,
-		AddFromWizard: &addFromWizardDefault,
+		UserAgent: &userAgentDefault,
 	}
 
 	val.timeout = o.timeout
@@ -176,13 +178,13 @@ func (o *AddDeviceParams) SetAddFromWizard(addFromWizard *bool) {
 }
 
 // WithBody adds the body to the add device params
-func (o *AddDeviceParams) WithBody(body *models.Device) *AddDeviceParams {
+func (o *AddDeviceParams) WithBody(body models.Device) *AddDeviceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add device params
-func (o *AddDeviceParams) SetBody(body *models.Device) {
+func (o *AddDeviceParams) SetBody(body models.Device) {
 	o.Body = body
 }
 
@@ -195,6 +197,17 @@ func (o *AddDeviceParams) WithEnd(end *int64) *AddDeviceParams {
 // SetEnd adds the end to the add device params
 func (o *AddDeviceParams) SetEnd(end *int64) {
 	o.End = end
+}
+
+// WithNeedStcGrpAndSortedCP adds the needStcGrpAndSortedCP to the add device params
+func (o *AddDeviceParams) WithNeedStcGrpAndSortedCP(needStcGrpAndSortedCP *bool) *AddDeviceParams {
+	o.SetNeedStcGrpAndSortedCP(needStcGrpAndSortedCP)
+	return o
+}
+
+// SetNeedStcGrpAndSortedCP adds the needStcGrpAndSortedCP to the add device params
+func (o *AddDeviceParams) SetNeedStcGrpAndSortedCP(needStcGrpAndSortedCP *bool) {
+	o.NeedStcGrpAndSortedCP = needStcGrpAndSortedCP
 }
 
 // WithNetflowFilter adds the netflowFilter to the add device params
@@ -251,10 +264,8 @@ func (o *AddDeviceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 			}
 		}
 	}
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if o.End != nil {
@@ -269,6 +280,23 @@ func (o *AddDeviceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		if qEnd != "" {
 
 			if err := r.SetQueryParam("end", qEnd); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.NeedStcGrpAndSortedCP != nil {
+
+		// query param needStcGrpAndSortedCP
+		var qrNeedStcGrpAndSortedCP bool
+
+		if o.NeedStcGrpAndSortedCP != nil {
+			qrNeedStcGrpAndSortedCP = *o.NeedStcGrpAndSortedCP
+		}
+		qNeedStcGrpAndSortedCP := swag.FormatBool(qrNeedStcGrpAndSortedCP)
+		if qNeedStcGrpAndSortedCP != "" {
+
+			if err := r.SetQueryParam("needStcGrpAndSortedCP", qNeedStcGrpAndSortedCP); err != nil {
 				return err
 			}
 		}

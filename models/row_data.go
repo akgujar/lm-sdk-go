@@ -31,6 +31,10 @@ type RowData struct {
 	// device Id
 	// Read Only: true
 	DeviceID int32 `json:"deviceId,omitempty"`
+
+	// host name
+	// Read Only: true
+	HostName string `json:"hostName,omitempty"`
 }
 
 // Validate validates this row data
@@ -61,6 +65,8 @@ func (m *RowData) validateCells(formats strfmt.Registry) error {
 			if err := m.Cells[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cells" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cells" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -87,6 +93,10 @@ func (m *RowData) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateHostName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -102,9 +112,16 @@ func (m *RowData) contextValidateCells(ctx context.Context, formats strfmt.Regis
 	for i := 0; i < len(m.Cells); i++ {
 
 		if m.Cells[i] != nil {
+
+			if swag.IsZero(m.Cells[i]) { // not required
+				return nil
+			}
+
 			if err := m.Cells[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cells" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cells" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -127,6 +144,15 @@ func (m *RowData) contextValidateDeviceDisplayName(ctx context.Context, formats 
 func (m *RowData) contextValidateDeviceID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "deviceId", "body", int32(m.DeviceID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *RowData) contextValidateHostName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "hostName", "body", string(m.HostName)); err != nil {
 		return err
 	}
 

@@ -28,11 +28,15 @@ type BigNumberWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -40,7 +44,7 @@ type BigNumberWidget struct {
 
 	userPermissionField string
 
-	// BigNumber widget configuration info
+	// big number info
 	// Required: true
 	BigNumberInfo *BigNumberInfo `json:"bigNumberInfo"`
 }
@@ -85,6 +89,16 @@ func (m *BigNumberWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *BigNumberWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *BigNumberWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *BigNumberWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -113,6 +127,16 @@ func (m *BigNumberWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *BigNumberWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *BigNumberWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *BigNumberWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -158,7 +182,7 @@ func (m *BigNumberWidget) SetUserPermission(val string) {
 func (m *BigNumberWidget) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// BigNumber widget configuration info
+		// big number info
 		// Required: true
 		BigNumberInfo *BigNumberInfo `json:"bigNumberInfo"`
 	}
@@ -181,11 +205,15 @@ func (m *BigNumberWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -213,11 +241,15 @@ func (m *BigNumberWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -242,7 +274,7 @@ func (m BigNumberWidget) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// BigNumber widget configuration info
+		// big number info
 		// Required: true
 		BigNumberInfo *BigNumberInfo `json:"bigNumberInfo"`
 	}{
@@ -261,11 +293,15 @@ func (m BigNumberWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -284,11 +320,15 @@ func (m BigNumberWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -355,6 +395,8 @@ func (m *BigNumberWidget) validateBigNumberInfo(formats strfmt.Registry) error {
 		if err := m.BigNumberInfo.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("bigNumberInfo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("bigNumberInfo")
 			}
 			return err
 		}
@@ -419,9 +461,12 @@ func (m *BigNumberWidget) contextValidateUserPermission(ctx context.Context, for
 func (m *BigNumberWidget) contextValidateBigNumberInfo(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.BigNumberInfo != nil {
+
 		if err := m.BigNumberInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("bigNumberInfo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("bigNumberInfo")
 			}
 			return err
 		}

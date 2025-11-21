@@ -20,6 +20,9 @@ import (
 // swagger:model Dashboard
 type Dashboard struct {
 
+	// this field will hold values for a dashboard filter on account level
+	DefaultDashboardFilters *RestDefaultDashboardFilters `json:"defaultDashboardFilters,omitempty"`
+
 	// The description of the dashboard
 	// Example: Windows Servers Performance
 	Description string `json:"description,omitempty"`
@@ -69,7 +72,7 @@ type Dashboard struct {
 	UserPermission string `json:"userPermission,omitempty"`
 
 	// If useDynamicWidget=true, this field must at least contain tokens defaultDeviceGroup and defaultServiceGroup
-	// Example: \"widgetTokens\":[{\"name\":\"defaultDeviceGroup\",\"value\":\"*\"},{\"name\":\"defaultServiceGroup\",\"value\":\"*\"}]
+	// Example: \"[{\"name\":\"defaultDeviceGroup\",\"value\":\"*\"},{\"name\":\"defaultServiceGroup\",\"value\":\"*\"}]\
 	WidgetTokens []*WidgetToken `json:"widgetTokens,omitempty"`
 
 	// Information about widget configuration used by the UI
@@ -79,6 +82,10 @@ type Dashboard struct {
 // Validate validates this dashboard
 func (m *Dashboard) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateDefaultDashboardFilters(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
@@ -91,6 +98,25 @@ func (m *Dashboard) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Dashboard) validateDefaultDashboardFilters(formats strfmt.Registry) error {
+	if swag.IsZero(m.DefaultDashboardFilters) { // not required
+		return nil
+	}
+
+	if m.DefaultDashboardFilters != nil {
+		if err := m.DefaultDashboardFilters.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("defaultDashboardFilters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("defaultDashboardFilters")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -117,6 +143,8 @@ func (m *Dashboard) validateWidgetTokens(formats strfmt.Registry) error {
 			if err := m.WidgetTokens[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("widgetTokens" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("widgetTokens" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -130,6 +158,10 @@ func (m *Dashboard) validateWidgetTokens(formats strfmt.Registry) error {
 // ContextValidate validate this dashboard based on the context it is used
 func (m *Dashboard) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateDefaultDashboardFilters(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateFullName(ctx, formats); err != nil {
 		res = append(res, err)
@@ -158,6 +190,27 @@ func (m *Dashboard) ContextValidate(ctx context.Context, formats strfmt.Registry
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Dashboard) contextValidateDefaultDashboardFilters(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DefaultDashboardFilters != nil {
+
+		if swag.IsZero(m.DefaultDashboardFilters) { // not required
+			return nil
+		}
+
+		if err := m.DefaultDashboardFilters.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("defaultDashboardFilters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("defaultDashboardFilters")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -211,9 +264,16 @@ func (m *Dashboard) contextValidateWidgetTokens(ctx context.Context, formats str
 	for i := 0; i < len(m.WidgetTokens); i++ {
 
 		if m.WidgetTokens[i] != nil {
+
+			if swag.IsZero(m.WidgetTokens[i]) { // not required
+				return nil
+			}
+
 			if err := m.WidgetTokens[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("widgetTokens" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("widgetTokens" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

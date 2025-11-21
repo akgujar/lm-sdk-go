@@ -29,11 +29,15 @@ type GoogleMapWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -101,6 +105,16 @@ func (m *GoogleMapWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *GoogleMapWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *GoogleMapWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *GoogleMapWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -129,6 +143,16 @@ func (m *GoogleMapWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *GoogleMapWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *GoogleMapWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *GoogleMapWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -212,11 +236,15 @@ func (m *GoogleMapWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -244,11 +272,15 @@ func (m *GoogleMapWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -322,11 +354,15 @@ func (m GoogleMapWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -345,11 +381,15 @@ func (m GoogleMapWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -421,6 +461,8 @@ func (m *GoogleMapWidget) validateMapPoints(formats strfmt.Registry) error {
 			if err := m.MapPoints[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("mapPoints" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("mapPoints" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -489,9 +531,16 @@ func (m *GoogleMapWidget) contextValidateMapPoints(ctx context.Context, formats 
 	for i := 0; i < len(m.MapPoints); i++ {
 
 		if m.MapPoints[i] != nil {
+
+			if swag.IsZero(m.MapPoints[i]) { // not required
+				return nil
+			}
+
 			if err := m.MapPoints[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("mapPoints" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("mapPoints" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

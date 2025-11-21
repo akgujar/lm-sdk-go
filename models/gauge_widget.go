@@ -29,11 +29,15 @@ type GaugeWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -44,7 +48,7 @@ type GaugeWidget struct {
 	// The threshold of Gauge color changes
 	ColorThresholds []*ColorThreshold `json:"colorThresholds,omitempty"`
 
-	// The datapoint whose value is displayed in the gauge widget
+	// data point
 	// Required: true
 	DataPoint *GaugeDataPoint `json:"dataPoint"`
 
@@ -110,6 +114,16 @@ func (m *GaugeWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *GaugeWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *GaugeWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *GaugeWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -138,6 +152,16 @@ func (m *GaugeWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *GaugeWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *GaugeWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *GaugeWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -186,7 +210,7 @@ func (m *GaugeWidget) UnmarshalJSON(raw []byte) error {
 		// The threshold of Gauge color changes
 		ColorThresholds []*ColorThreshold `json:"colorThresholds,omitempty"`
 
-		// The datapoint whose value is displayed in the gauge widget
+		// data point
 		// Required: true
 		DataPoint *GaugeDataPoint `json:"dataPoint"`
 
@@ -230,11 +254,15 @@ func (m *GaugeWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -262,11 +290,15 @@ func (m *GaugeWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -302,7 +334,7 @@ func (m GaugeWidget) MarshalJSON() ([]byte, error) {
 		// The threshold of Gauge color changes
 		ColorThresholds []*ColorThreshold `json:"colorThresholds,omitempty"`
 
-		// The datapoint whose value is displayed in the gauge widget
+		// data point
 		// Required: true
 		DataPoint *GaugeDataPoint `json:"dataPoint"`
 
@@ -358,11 +390,15 @@ func (m GaugeWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -381,11 +417,15 @@ func (m GaugeWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -461,6 +501,8 @@ func (m *GaugeWidget) validateColorThresholds(formats strfmt.Registry) error {
 			if err := m.ColorThresholds[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -481,6 +523,8 @@ func (m *GaugeWidget) validateDataPoint(formats strfmt.Registry) error {
 		if err := m.DataPoint.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("dataPoint")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("dataPoint")
 			}
 			return err
 		}
@@ -551,9 +595,16 @@ func (m *GaugeWidget) contextValidateColorThresholds(ctx context.Context, format
 	for i := 0; i < len(m.ColorThresholds); i++ {
 
 		if m.ColorThresholds[i] != nil {
+
+			if swag.IsZero(m.ColorThresholds[i]) { // not required
+				return nil
+			}
+
 			if err := m.ColorThresholds[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -567,9 +618,12 @@ func (m *GaugeWidget) contextValidateColorThresholds(ctx context.Context, format
 func (m *GaugeWidget) contextValidateDataPoint(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DataPoint != nil {
+
 		if err := m.DataPoint.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("dataPoint")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("dataPoint")
 			}
 			return err
 		}

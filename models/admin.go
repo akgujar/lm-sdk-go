@@ -48,7 +48,7 @@ type Admin struct {
 	CreatedBy string `json:"createdBy,omitempty"`
 
 	// The email address associated with the user
-	// Example: john.doe@logicmonitor.com
+	// Example: user@domain.com
 	// Required: true
 	Email *string `json:"email"`
 
@@ -64,6 +64,15 @@ type Admin struct {
 	// Read Only: true
 	ID int32 `json:"id,omitempty"`
 
+	// Specifies whether the user need to be logged off, if Force Password Change is enabled. The values can be true|false
+	// Example: false
+	// Read Only: true
+	ImmediateForceLogout *bool `json:"immediateForceLogout,omitempty"`
+
+	// The time that the user last accessed the portal
+	// Read Only: true
+	LastAccessOn int64 `json:"lastAccessOn,omitempty"`
+
 	// The last action taken by the user
 	// Read Only: true
 	LastAction string `json:"lastAction,omitempty"`
@@ -75,6 +84,10 @@ type Admin struct {
 	// The time, in local format, of the user's last action
 	// Read Only: true
 	LastActionOnLocal string `json:"lastActionOnLocal,omitempty"`
+
+	// The Last User IP
+	// Read Only: true
+	LastAuthIP string `json:"lastAuthIp,omitempty"`
 
 	// The time that the user last logged in, in epoch format
 	// Read Only: true
@@ -90,8 +103,7 @@ type Admin struct {
 
 	// The password associated with the user
 	// Example: JohnDoe1
-	// Required: true
-	Password *string `json:"password"`
+	Password string `json:"password,omitempty"`
 
 	// The phone number associated with the user
 	// Example: 8054445555
@@ -103,7 +115,7 @@ type Admin struct {
 	Roles []*Role `json:"roles"`
 
 	// The sms email address associated with the user
-	// Example: 8054445555@logicmonitor.com
+	// Example: user@domain.com
 	SmsEmail string `json:"smsEmail,omitempty"`
 
 	// The values can be sms | fullText, where sms = 160 characters and fullText = all characters
@@ -136,13 +148,17 @@ type Admin struct {
 	// Read Only: true
 	UserPermission string `json:"userPermission,omitempty"`
 
+	// The type of user
+	// Read Only: true
+	UserType string `json:"userType,omitempty"`
+
 	// The username associated with the user
 	// Example: John
 	// Required: true
 	Username *string `json:"username"`
 
 	// The account tabs that will be visible to the user
-	// Example: {\n\n\"Resources\" : true,\n\"Websites\" : true,\n\"Reports\" : true,\n\"Dashboards\" : true,\n\"Alerts\" : true,\n\"Settings\" : true,\n\"Maps\" : true,\n\"Logs\" : true,\n\"Traces\" : true\n}
+	// Example: {\n\n\"Resources\" : true,\n\"Websites\" : true,\n\"Reports\" : true,\n\"Dashboards\" : true,\n\"Alerts\" : true,\n\"Settings\" : true,\n\"Maps\" : true,\n\"Logs\" : true,\n\"Traces\" : true\n\"Modules\" : true\n}
 	ViewPermission interface{} `json:"viewPermission,omitempty"`
 }
 
@@ -155,10 +171,6 @@ func (m *Admin) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEmail(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePassword(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -190,6 +202,8 @@ func (m *Admin) validateAPITokens(formats strfmt.Registry) error {
 			if err := m.APITokens[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("apiTokens" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("apiTokens" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -203,15 +217,6 @@ func (m *Admin) validateAPITokens(formats strfmt.Registry) error {
 func (m *Admin) validateEmail(formats strfmt.Registry) error {
 
 	if err := validate.Required("email", "body", m.Email); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Admin) validatePassword(formats strfmt.Registry) error {
-
-	if err := validate.Required("password", "body", m.Password); err != nil {
 		return err
 	}
 
@@ -237,6 +242,8 @@ func (m *Admin) validateRoles(formats strfmt.Registry) error {
 			if err := m.Roles[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -272,6 +279,14 @@ func (m *Admin) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateImmediateForceLogout(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLastAccessOn(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateLastAction(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -281,6 +296,10 @@ func (m *Admin) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateLastActionOnLocal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLastAuthIP(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -304,6 +323,10 @@ func (m *Admin) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateUserType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -324,9 +347,16 @@ func (m *Admin) contextValidateAPITokens(ctx context.Context, formats strfmt.Reg
 	for i := 0; i < len(m.APITokens); i++ {
 
 		if m.APITokens[i] != nil {
+
+			if swag.IsZero(m.APITokens[i]) { // not required
+				return nil
+			}
+
 			if err := m.APITokens[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("apiTokens" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("apiTokens" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -340,6 +370,24 @@ func (m *Admin) contextValidateAPITokens(ctx context.Context, formats strfmt.Reg
 func (m *Admin) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "id", "body", int32(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Admin) contextValidateImmediateForceLogout(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "immediateForceLogout", "body", m.ImmediateForceLogout); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Admin) contextValidateLastAccessOn(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "lastAccessOn", "body", int64(m.LastAccessOn)); err != nil {
 		return err
 	}
 
@@ -373,6 +421,15 @@ func (m *Admin) contextValidateLastActionOnLocal(ctx context.Context, formats st
 	return nil
 }
 
+func (m *Admin) contextValidateLastAuthIP(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "lastAuthIp", "body", string(m.LastAuthIP)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Admin) contextValidateLastLoginOn(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "lastLoginOn", "body", int64(m.LastLoginOn)); err != nil {
@@ -387,9 +444,16 @@ func (m *Admin) contextValidateRoles(ctx context.Context, formats strfmt.Registr
 	for i := 0; i < len(m.Roles); i++ {
 
 		if m.Roles[i] != nil {
+
+			if swag.IsZero(m.Roles[i]) { // not required
+				return nil
+			}
+
 			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -421,6 +485,15 @@ func (m *Admin) contextValidateTrainingEmail(ctx context.Context, formats strfmt
 func (m *Admin) contextValidateUserPermission(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "userPermission", "body", string(m.UserPermission)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Admin) contextValidateUserType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "userType", "body", string(m.UserType)); err != nil {
 		return err
 	}
 

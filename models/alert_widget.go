@@ -28,11 +28,15 @@ type AlertWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -40,7 +44,7 @@ type AlertWidget struct {
 
 	userPermissionField string
 
-	// The filter for the alert table
+	// filters
 	Filters *AlertFilters `json:"filters,omitempty"`
 
 	// parsed filters
@@ -87,6 +91,16 @@ func (m *AlertWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *AlertWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *AlertWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *AlertWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -115,6 +129,16 @@ func (m *AlertWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *AlertWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *AlertWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *AlertWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -160,7 +184,7 @@ func (m *AlertWidget) SetUserPermission(val string) {
 func (m *AlertWidget) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// The filter for the alert table
+		// filters
 		Filters *AlertFilters `json:"filters,omitempty"`
 
 		// parsed filters
@@ -185,11 +209,15 @@ func (m *AlertWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -217,11 +245,15 @@ func (m *AlertWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -247,7 +279,7 @@ func (m AlertWidget) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// The filter for the alert table
+		// filters
 		Filters *AlertFilters `json:"filters,omitempty"`
 
 		// parsed filters
@@ -270,11 +302,15 @@ func (m AlertWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -293,11 +329,15 @@ func (m AlertWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -368,6 +408,8 @@ func (m *AlertWidget) validateFilters(formats strfmt.Registry) error {
 		if err := m.Filters.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("filters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("filters")
 			}
 			return err
 		}
@@ -386,6 +428,8 @@ func (m *AlertWidget) validateParsedFilters(formats strfmt.Registry) error {
 		if err := m.ParsedFilters.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parsedFilters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parsedFilters")
 			}
 			return err
 		}
@@ -454,9 +498,16 @@ func (m *AlertWidget) contextValidateUserPermission(ctx context.Context, formats
 func (m *AlertWidget) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Filters != nil {
+
+		if swag.IsZero(m.Filters) { // not required
+			return nil
+		}
+
 		if err := m.Filters.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("filters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("filters")
 			}
 			return err
 		}
@@ -468,9 +519,16 @@ func (m *AlertWidget) contextValidateFilters(ctx context.Context, formats strfmt
 func (m *AlertWidget) contextValidateParsedFilters(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ParsedFilters != nil {
+
+		if swag.IsZero(m.ParsedFilters) { // not required
+			return nil
+		}
+
 		if err := m.ParsedFilters.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("parsedFilters")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("parsedFilters")
 			}
 			return err
 		}

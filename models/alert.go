@@ -21,7 +21,7 @@ type Alert struct {
 
 	// The active SDT, if one exists
 	// Read Only: true
-	SDT interface{} `json:"SDT,omitempty"`
+	SDT *JSONObject `json:"SDT,omitempty"`
 
 	// The comment submitted with the acknowledgement
 	// Read Only: true
@@ -47,6 +47,18 @@ type Alert struct {
 	// Read Only: true
 	AdAlertDesc string `json:"adAlertDesc,omitempty"`
 
+	// The alert external ticket urls
+	// Read Only: true
+	AlertExternalTicketURL *JSONObject `json:"alertExternalTicketUrl,omitempty"`
+
+	// Alert group entity value for stateful log alerts
+	// Read Only: true
+	AlertGroupEntityValue string `json:"alertGroupEntityValue,omitempty"`
+
+	// Specified alert query information
+	// Read Only: true
+	AlertQuery string `json:"alertQuery,omitempty"`
+
 	// The value that triggered the alert
 	// Read Only: true
 	AlertValue string `json:"alertValue,omitempty"`
@@ -63,6 +75,10 @@ type Alert struct {
 	// Read Only: true
 	ChainID int32 `json:"chainId,omitempty"`
 
+	// Specified log alert clear expression information
+	// Read Only: true
+	ClearExpr string `json:"clearExpr,omitempty"`
+
 	// The value that cleared the alert
 	// Read Only: true
 	ClearValue string `json:"clearValue,omitempty"`
@@ -71,9 +87,8 @@ type Alert struct {
 	// Read Only: true
 	Cleared *bool `json:"cleared,omitempty"`
 
-	// The property or token values that should display with the alert details. Note that if referencing tokens, you'll need to URL encode the # symbol.
-	// Read Only: true
-	CustomColumns interface{} `json:"customColumns,omitempty"`
+	// context
+	Context *RestAlertQueryContext `json:"context,omitempty"`
 
 	// The id of the datapoint in alert
 	// Read Only: true
@@ -93,7 +108,7 @@ type Alert struct {
 
 	// The alert message, if needMessage=true is included in the query parameters
 	// Read Only: true
-	DetailMessage interface{} `json:"detailMessage,omitempty"`
+	DetailMessage *JSONObject `json:"detailMessage,omitempty"`
 
 	// Indicates dynamic threshold alert generation setting. Expression is comma separated
 	// 0 denotes OFF, 1 denotes ON, -1 denotes INVALID
@@ -132,6 +147,18 @@ type Alert struct {
 	// The internal id for the alert
 	// Read Only: true
 	InternalID string `json:"internalId,omitempty"`
+
+	// The time (in epoch format) that the alert was last updated. This field is used to track the most recent update to the alert, such as changes in its state, acknowledgment, or other properties
+	// Read Only: true
+	LastUpdatedOnEpoch int64 `json:"lastUpdatedOnEpoch,omitempty"`
+
+	// Specified log alert metadata fields value
+	// Read Only: true
+	LogMetaData string `json:"logMetaData,omitempty"`
+
+	// Specified log alert partition information
+	// Read Only: true
+	LogPartition string `json:"logPartition,omitempty"`
 
 	// Information about the groups the object is a member of
 	// Read Only: true
@@ -181,9 +208,17 @@ type Alert struct {
 	// Read Only: true
 	RuleID int32 `json:"ruleId,omitempty"`
 
+	// The SDT Ids associated with the alert
+	// Read Only: true
+	SDTIds string `json:"sdtIds,omitempty"`
+
 	// It specifies if the SDT is set for an active alert or not. However, the sdted is set to false for cleared alert as you cannot apply SDT to a cleared alert.
 	// Read Only: true
-	Sdted *bool `json:"sdted,omitempty"`
+	Sdted interface{} `json:"sdted,omitempty"`
+
+	// The session id of alert
+	// Read Only: true
+	SessionID int32 `json:"sessionId,omitempty"`
 
 	// The alert severity, where 2=warning, 3=error and 4=critical
 	// Read Only: true
@@ -201,7 +236,7 @@ type Alert struct {
 	// Read Only: true
 	SuppressDesc string `json:"suppressDesc,omitempty"`
 
-	// The component (For example: SDT, HostClusterAlert) which suppressed the alert
+	// The component (For example: SDT, CollectorDown, HostClusterAlert, Dependency, HostDown, ADS) which suppressed the alert
 	// Read Only: true
 	Suppressor string `json:"suppressor,omitempty"`
 
@@ -220,12 +255,113 @@ type Alert struct {
 
 // Validate validates this alert
 func (m *Alert) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateSDT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAlertExternalTicketURL(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateContext(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDetailMessage(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Alert) validateSDT(formats strfmt.Registry) error {
+	if swag.IsZero(m.SDT) { // not required
+		return nil
+	}
+
+	if m.SDT != nil {
+		if err := m.SDT.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SDT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SDT")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Alert) validateAlertExternalTicketURL(formats strfmt.Registry) error {
+	if swag.IsZero(m.AlertExternalTicketURL) { // not required
+		return nil
+	}
+
+	if m.AlertExternalTicketURL != nil {
+		if err := m.AlertExternalTicketURL.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("alertExternalTicketUrl")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("alertExternalTicketUrl")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Alert) validateContext(formats strfmt.Registry) error {
+	if swag.IsZero(m.Context) { // not required
+		return nil
+	}
+
+	if m.Context != nil {
+		if err := m.Context.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("context")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("context")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Alert) validateDetailMessage(formats strfmt.Registry) error {
+	if swag.IsZero(m.DetailMessage) { // not required
+		return nil
+	}
+
+	if m.DetailMessage != nil {
+		if err := m.DetailMessage.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("detailMessage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("detailMessage")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
 // ContextValidate validate this alert based on the context it is used
 func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateSDT(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateAckComment(ctx, formats); err != nil {
 		res = append(res, err)
@@ -251,6 +387,18 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateAlertExternalTicketURL(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAlertGroupEntityValue(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAlertQuery(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAlertValue(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -267,11 +415,19 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateClearExpr(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateClearValue(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateCleared(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateContext(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -288,6 +444,10 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateDependencyRoutingState(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDetailMessage(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -320,6 +480,18 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateInternalID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLastUpdatedOnEpoch(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLogMetaData(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLogPartition(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -367,7 +539,11 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSdted(ctx, formats); err != nil {
+	if err := m.contextValidateSDTIds(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSessionID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -406,6 +582,27 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Alert) contextValidateSDT(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SDT != nil {
+
+		if swag.IsZero(m.SDT) { // not required
+			return nil
+		}
+
+		if err := m.SDT.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SDT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SDT")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -463,6 +660,45 @@ func (m *Alert) contextValidateAdAlertDesc(ctx context.Context, formats strfmt.R
 	return nil
 }
 
+func (m *Alert) contextValidateAlertExternalTicketURL(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AlertExternalTicketURL != nil {
+
+		if swag.IsZero(m.AlertExternalTicketURL) { // not required
+			return nil
+		}
+
+		if err := m.AlertExternalTicketURL.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("alertExternalTicketUrl")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("alertExternalTicketUrl")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateAlertGroupEntityValue(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "alertGroupEntityValue", "body", string(m.AlertGroupEntityValue)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateAlertQuery(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "alertQuery", "body", string(m.AlertQuery)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Alert) contextValidateAlertValue(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "alertValue", "body", string(m.AlertValue)); err != nil {
@@ -499,6 +735,15 @@ func (m *Alert) contextValidateChainID(ctx context.Context, formats strfmt.Regis
 	return nil
 }
 
+func (m *Alert) contextValidateClearExpr(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "clearExpr", "body", string(m.ClearExpr)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Alert) contextValidateClearValue(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "clearValue", "body", string(m.ClearValue)); err != nil {
@@ -512,6 +757,27 @@ func (m *Alert) contextValidateCleared(ctx context.Context, formats strfmt.Regis
 
 	if err := validate.ReadOnly(ctx, "cleared", "body", m.Cleared); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateContext(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Context != nil {
+
+		if swag.IsZero(m.Context) { // not required
+			return nil
+		}
+
+		if err := m.Context.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("context")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("context")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -548,6 +814,27 @@ func (m *Alert) contextValidateDependencyRoutingState(ctx context.Context, forma
 
 	if err := validate.ReadOnly(ctx, "dependencyRoutingState", "body", string(m.DependencyRoutingState)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateDetailMessage(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DetailMessage != nil {
+
+		if swag.IsZero(m.DetailMessage) { // not required
+			return nil
+		}
+
+		if err := m.DetailMessage.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("detailMessage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("detailMessage")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -619,6 +906,33 @@ func (m *Alert) contextValidateInstanceName(ctx context.Context, formats strfmt.
 func (m *Alert) contextValidateInternalID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "internalId", "body", string(m.InternalID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateLastUpdatedOnEpoch(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "lastUpdatedOnEpoch", "body", int64(m.LastUpdatedOnEpoch)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateLogMetaData(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "logMetaData", "body", string(m.LogMetaData)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateLogPartition(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "logPartition", "body", string(m.LogPartition)); err != nil {
 		return err
 	}
 
@@ -724,9 +1038,18 @@ func (m *Alert) contextValidateRuleID(ctx context.Context, formats strfmt.Regist
 	return nil
 }
 
-func (m *Alert) contextValidateSdted(ctx context.Context, formats strfmt.Registry) error {
+func (m *Alert) contextValidateSDTIds(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "sdted", "body", m.Sdted); err != nil {
+	if err := validate.ReadOnly(ctx, "sdtIds", "body", string(m.SDTIds)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Alert) contextValidateSessionID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "sessionId", "body", int32(m.SessionID)); err != nil {
 		return err
 	}
 

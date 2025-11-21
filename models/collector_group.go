@@ -29,6 +29,9 @@ type CollectorGroup struct {
 	// The auto balance strategy
 	AutoBalanceStrategy string `json:"autoBalanceStrategy,omitempty"`
 
+	// calculated threshold value for a ABCG collector to check if a collector has high load
+	CalThreshold int64 `json:"calThreshold,omitempty"`
+
 	// The time at which the group was created in epoch format
 	// Read Only: true
 	CreateOn int64 `json:"createOn,omitempty"`
@@ -73,6 +76,18 @@ type CollectorGroup struct {
 	// Read Only: true
 	Platform string `json:"platform,omitempty"`
 
+	// property for balancing
+	// Example: auto.collector.site.affinity.id
+	PropertyForBalancing string `json:"propertyForBalancing,omitempty"`
+
+	// The time at which property for balancing was last updated in epoch format
+	// Read Only: true
+	PropertyForBalancingLastUpdatedOn int64 `json:"propertyForBalancingLastUpdatedOn,omitempty"`
+
+	// The time at which property for balancing is locked for updating in epoch format
+	// Read Only: true
+	PropertyForBalancingUpdateLockedUptoMS int64 `json:"propertyForBalancingUpdateLockedUptoMS,omitempty"`
+
 	// The permission level of the user that made the API request
 	// Read Only: true
 	UserPermission string `json:"userPermission,omitempty"`
@@ -114,6 +129,8 @@ func (m *CollectorGroup) validateCustomProperties(formats strfmt.Registry) error
 			if err := m.CustomProperties[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("customProperties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("customProperties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -133,6 +150,8 @@ func (m *CollectorGroup) validateHighestPriorityCollectorStatus(formats strfmt.R
 		if err := m.HighestPriorityCollectorStatus.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("highestPriorityCollectorStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("highestPriorityCollectorStatus")
 			}
 			return err
 		}
@@ -190,6 +209,14 @@ func (m *CollectorGroup) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePropertyForBalancingLastUpdatedOn(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePropertyForBalancingUpdateLockedUptoMS(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateUserPermission(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -214,9 +241,16 @@ func (m *CollectorGroup) contextValidateCustomProperties(ctx context.Context, fo
 	for i := 0; i < len(m.CustomProperties); i++ {
 
 		if m.CustomProperties[i] != nil {
+
+			if swag.IsZero(m.CustomProperties[i]) { // not required
+				return nil
+			}
+
 			if err := m.CustomProperties[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("customProperties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("customProperties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -230,9 +264,16 @@ func (m *CollectorGroup) contextValidateCustomProperties(ctx context.Context, fo
 func (m *CollectorGroup) contextValidateHighestPriorityCollectorStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.HighestPriorityCollectorStatus != nil {
+
+		if swag.IsZero(m.HighestPriorityCollectorStatus) { // not required
+			return nil
+		}
+
 		if err := m.HighestPriorityCollectorStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("highestPriorityCollectorStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("highestPriorityCollectorStatus")
 			}
 			return err
 		}
@@ -289,6 +330,24 @@ func (m *CollectorGroup) contextValidateNumOfInstances(ctx context.Context, form
 func (m *CollectorGroup) contextValidatePlatform(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "platform", "body", string(m.Platform)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CollectorGroup) contextValidatePropertyForBalancingLastUpdatedOn(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "propertyForBalancingLastUpdatedOn", "body", int64(m.PropertyForBalancingLastUpdatedOn)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CollectorGroup) contextValidatePropertyForBalancingUpdateLockedUptoMS(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "propertyForBalancingUpdateLockedUptoMS", "body", int64(m.PropertyForBalancingUpdateLockedUptoMS)); err != nil {
 		return err
 	}
 

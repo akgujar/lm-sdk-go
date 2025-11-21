@@ -53,10 +53,12 @@ func NewGetSiteMonitorCheckPointListParamsWithHTTPClient(client *http.Client) *G
 	}
 }
 
-/* GetSiteMonitorCheckPointListParams contains all the parameters to send to the API endpoint
-   for the get site monitor check point list operation.
+/*
+GetSiteMonitorCheckPointListParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get site monitor check point list operation.
+
+	Typically these are written to a http.Request.
 */
 type GetSiteMonitorCheckPointListParams struct {
 
@@ -81,6 +83,12 @@ type GetSiteMonitorCheckPointListParams struct {
 	// Format: int32
 	// Default: 50
 	Size *int32
+
+	/* Type.
+
+	   Type of checkpoint to filter. If not specified, returns website legacy checkpoints.
+	*/
+	Type *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -207,6 +215,17 @@ func (o *GetSiteMonitorCheckPointListParams) SetSize(size *int32) {
 	o.Size = size
 }
 
+// WithType adds the typeVar to the get site monitor check point list params
+func (o *GetSiteMonitorCheckPointListParams) WithType(typeVar *string) *GetSiteMonitorCheckPointListParams {
+	o.SetType(typeVar)
+	return o
+}
+
+// SetType adds the type to the get site monitor check point list params
+func (o *GetSiteMonitorCheckPointListParams) SetType(typeVar *string) {
+	o.Type = typeVar
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetSiteMonitorCheckPointListParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -286,6 +305,23 @@ func (o *GetSiteMonitorCheckPointListParams) WriteToRequest(r runtime.ClientRequ
 		if qSize != "" {
 
 			if err := r.SetQueryParam("size", qSize); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Type != nil {
+
+		// query param type
+		var qrType string
+
+		if o.Type != nil {
+			qrType = *o.Type
+		}
+		qType := qrType
+		if qType != "" {
+
+			if err := r.SetQueryParam("type", qType); err != nil {
 				return err
 			}
 		}

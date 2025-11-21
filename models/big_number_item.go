@@ -15,10 +15,13 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// BigNumberItem big number item
+// BigNumberItem The datapoints and virtual datapoints whose values should be displayed in the big number widget
 //
 // swagger:model BigNumberItem
 type BigNumberItem struct {
+
+	// actions
+	Actions []*WidgetActionV3 `json:"actions,omitempty"`
 
 	// bottom label
 	BottomLabel string `json:"bottomLabel,omitempty"`
@@ -48,6 +51,10 @@ type BigNumberItem struct {
 func (m *BigNumberItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateColorThresholds(formats); err != nil {
 		res = append(res, err)
 	}
@@ -66,6 +73,32 @@ func (m *BigNumberItem) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *BigNumberItem) validateActions(formats strfmt.Registry) error {
+	if swag.IsZero(m.Actions) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Actions); i++ {
+		if swag.IsZero(m.Actions[i]) { // not required
+			continue
+		}
+
+		if m.Actions[i] != nil {
+			if err := m.Actions[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("actions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("actions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *BigNumberItem) validateColorThresholds(formats strfmt.Registry) error {
 	if swag.IsZero(m.ColorThresholds) { // not required
 		return nil
@@ -80,6 +113,8 @@ func (m *BigNumberItem) validateColorThresholds(formats strfmt.Registry) error {
 			if err := m.ColorThresholds[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -112,6 +147,10 @@ func (m *BigNumberItem) validateUseCommaSeparators(formats strfmt.Registry) erro
 func (m *BigNumberItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateActions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateColorThresholds(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -122,14 +161,46 @@ func (m *BigNumberItem) ContextValidate(ctx context.Context, formats strfmt.Regi
 	return nil
 }
 
+func (m *BigNumberItem) contextValidateActions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Actions); i++ {
+
+		if m.Actions[i] != nil {
+
+			if swag.IsZero(m.Actions[i]) { // not required
+				return nil
+			}
+
+			if err := m.Actions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("actions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("actions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *BigNumberItem) contextValidateColorThresholds(ctx context.Context, formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.ColorThresholds); i++ {
 
 		if m.ColorThresholds[i] != nil {
+
+			if swag.IsZero(m.ColorThresholds[i]) { // not required
+				return nil
+			}
+
 			if err := m.ColorThresholds[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

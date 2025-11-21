@@ -10,7 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -411,7 +410,7 @@ func UnmarshalReportBaseSlice(reader io.Reader, consumer runtime.Consumer) ([]Re
 // UnmarshalReportBase unmarshals polymorphic ReportBase
 func UnmarshalReportBase(reader io.Reader, consumer runtime.Consumer) (ReportBase, error) {
 	// we need to read this twice, so first into a buffer
-	data, err := ioutil.ReadAll(reader)
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -436,6 +435,12 @@ func unmarshalReportBase(data []byte, consumer runtime.Consumer) (ReportBase, er
 
 	// The value of type is used to determine which type to create and unmarshal the data into
 	switch getType.Type {
+	case "AdvancedMetricsReport":
+		var result AdvancedMetricsReport
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "Alert":
 		var result AlertReport
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -462,6 +467,12 @@ func unmarshalReportBase(data []byte, consumer runtime.Consumer) (ReportBase, er
 		return &result, nil
 	case "Alert trends":
 		var result AlertTrendsReport
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "AlertsHealthCheckReport":
+		var result AlertsHealthCheckReport
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
@@ -508,6 +519,12 @@ func unmarshalReportBase(data []byte, consumer runtime.Consumer) (ReportBase, er
 			return nil, err
 		}
 		return &result, nil
+	case "LogsReport":
+		var result LogsReport
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "Netflow device metric":
 		var result NetflowReport
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -526,8 +543,20 @@ func unmarshalReportBase(data []byte, consumer runtime.Consumer) (ReportBase, er
 			return nil, err
 		}
 		return &result, nil
+	case "SDTinventoryReport":
+		var result SDTinventoryReport
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "Service Level Agreement":
 		var result SLAReport
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "UptimeResourceOverviewReport":
+		var result UptimeResourceOverviewReport
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
@@ -601,6 +630,8 @@ func (m *reportBase) validateRecipients(formats strfmt.Registry) error {
 			if err := m.recipientsField[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("recipients" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("recipients" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -755,9 +786,16 @@ func (m *reportBase) contextValidateRecipients(ctx context.Context, formats strf
 	for i := 0; i < len(m.Recipients()); i++ {
 
 		if m.recipientsField[i] != nil {
+
+			if swag.IsZero(m.recipientsField[i]) { // not required
+				return nil
+			}
+
 			if err := m.recipientsField[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("recipients" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("recipients" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

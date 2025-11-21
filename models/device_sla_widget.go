@@ -29,11 +29,15 @@ type DeviceSLAWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -116,6 +120,16 @@ func (m *DeviceSLAWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *DeviceSLAWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *DeviceSLAWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *DeviceSLAWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -144,6 +158,16 @@ func (m *DeviceSLAWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *DeviceSLAWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *DeviceSLAWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *DeviceSLAWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -242,11 +266,15 @@ func (m *DeviceSLAWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -274,11 +302,15 @@ func (m *DeviceSLAWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -382,11 +414,15 @@ func (m DeviceSLAWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -405,11 +441,15 @@ func (m DeviceSLAWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -485,6 +525,8 @@ func (m *DeviceSLAWidget) validateColorThresholds(formats strfmt.Registry) error
 			if err := m.ColorThresholds[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -510,6 +552,8 @@ func (m *DeviceSLAWidget) validateMetrics(formats strfmt.Registry) error {
 			if err := m.Metrics[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("metrics" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("metrics" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -582,9 +626,16 @@ func (m *DeviceSLAWidget) contextValidateColorThresholds(ctx context.Context, fo
 	for i := 0; i < len(m.ColorThresholds); i++ {
 
 		if m.ColorThresholds[i] != nil {
+
+			if swag.IsZero(m.ColorThresholds[i]) { // not required
+				return nil
+			}
+
 			if err := m.ColorThresholds[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("colorThresholds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -600,9 +651,16 @@ func (m *DeviceSLAWidget) contextValidateMetrics(ctx context.Context, formats st
 	for i := 0; i < len(m.Metrics); i++ {
 
 		if m.Metrics[i] != nil {
+
+			if swag.IsZero(m.Metrics[i]) { // not required
+				return nil
+			}
+
 			if err := m.Metrics[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("metrics" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("metrics" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

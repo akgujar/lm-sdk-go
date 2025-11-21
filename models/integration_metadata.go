@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// IntegrationMetadata integration metadata
+// IntegrationMetadata The local module's IntegrationMetadata, readable for troubleshooting purposes
 //
 // swagger:model IntegrationMetadata
 type IntegrationMetadata struct {
@@ -43,7 +43,7 @@ type IntegrationMetadata struct {
 	// The values can be DataSources | EventSources | PropertySources | ConfigSources | LogSources | TopologySources | Jobmonitors | AppliesTo Functions | SNMP SysOID Maps
 	// The type of LogicModule
 	// Read Only: true
-	// Enum: [DATASOURCE EVENTSOURCE JOBMONITOR APPLIESTO_FUNCTION SNMP_SYSOID_MAP PROPERTYSOURCE CONFIGSOURCE TOPOLOGYSOURCE LOGSOURCE]
+	// Enum: ["DATASOURCE","EVENTSOURCE","JOBMONITOR","APPLIESTO_FUNCTION","SNMP_SYSOID_MAP","PROPERTYSOURCE","CONFIGSOURCE","TOPOLOGYSOURCE","LOGSOURCE","DIAGNOSTICSOURCE","REMEDIATIONSOURCE"]
 	LogicModuleType string `json:"logicModuleType,omitempty"`
 
 	// Specifies the origin Author companies unique Id
@@ -61,6 +61,14 @@ type IntegrationMetadata struct {
 	// The origin lineage Id of the LMmodule
 	// Read Only: true
 	OriginLineageID string `json:"originLineageId,omitempty"`
+
+	// Specifies the origin version locator
+	// Read Only: true
+	OriginLocator string `json:"originLocator,omitempty"`
+
+	// Specifies the origin module name
+	// Read Only: true
+	OriginName string `json:"originName,omitempty"`
 
 	// The Registry ID of the Exchange Integration this module is based from
 	// Read Only: true
@@ -105,7 +113,7 @@ var integrationMetadataTypeLogicModuleTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATASOURCE","EVENTSOURCE","JOBMONITOR","APPLIESTO_FUNCTION","SNMP_SYSOID_MAP","PROPERTYSOURCE","CONFIGSOURCE","TOPOLOGYSOURCE","LOGSOURCE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATASOURCE","EVENTSOURCE","JOBMONITOR","APPLIESTO_FUNCTION","SNMP_SYSOID_MAP","PROPERTYSOURCE","CONFIGSOURCE","TOPOLOGYSOURCE","LOGSOURCE","DIAGNOSTICSOURCE","REMEDIATIONSOURCE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -141,6 +149,12 @@ const (
 
 	// IntegrationMetadataLogicModuleTypeLOGSOURCE captures enum value "LOGSOURCE"
 	IntegrationMetadataLogicModuleTypeLOGSOURCE string = "LOGSOURCE"
+
+	// IntegrationMetadataLogicModuleTypeDIAGNOSTICSOURCE captures enum value "DIAGNOSTICSOURCE"
+	IntegrationMetadataLogicModuleTypeDIAGNOSTICSOURCE string = "DIAGNOSTICSOURCE"
+
+	// IntegrationMetadataLogicModuleTypeREMEDIATIONSOURCE captures enum value "REMEDIATIONSOURCE"
+	IntegrationMetadataLogicModuleTypeREMEDIATIONSOURCE string = "REMEDIATIONSOURCE"
 )
 
 // prop value enum
@@ -205,6 +219,14 @@ func (m *IntegrationMetadata) ContextValidate(ctx context.Context, formats strfm
 	}
 
 	if err := m.contextValidateOriginLineageID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginLocator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginName(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -322,6 +344,24 @@ func (m *IntegrationMetadata) contextValidateOriginChecksum(ctx context.Context,
 func (m *IntegrationMetadata) contextValidateOriginLineageID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "originLineageId", "body", string(m.OriginLineageID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *IntegrationMetadata) contextValidateOriginLocator(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "originLocator", "body", string(m.OriginLocator)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *IntegrationMetadata) contextValidateOriginName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "originName", "body", string(m.OriginName)); err != nil {
 		return err
 	}
 

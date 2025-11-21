@@ -159,9 +159,29 @@ type DeviceGroup struct {
 	// Read Only: true
 	NumOfKubernetesDevices int64 `json:"numOfKubernetesDevices,omitempty"`
 
+	// num of oci devices
+	// Read Only: true
+	NumOfOciDevices int64 `json:"numOfOciDevices,omitempty"`
+
+	// oci regions info
+	// Read Only: true
+	OciRegionsInfo string `json:"ociRegionsInfo,omitempty"`
+
+	// The result returned by the transaction that tests the OCI credentials associated with the OCI group
+	// Read Only: true
+	OciTestResult *OciAccountTestResult `json:"ociTestResult,omitempty"`
+
+	// The Status code result returned by the transaction that tests the OCI credentials associated with the OCI group
+	// Read Only: true
+	OciTestResultCode int32 `json:"ociTestResultCode,omitempty"`
+
 	// The id of the parent group for this device group (the root device group has an Id of 1)
 	// Example: 1
 	ParentID int32 `json:"parentId,omitempty"`
+
+	// Warning message if Parent Property of system.tenant.identifier is changed for a group
+	// Read Only: true
+	PropertyChangeWarningMessage string `json:"propertyChangeWarningMessage,omitempty"`
 
 	// The role privilege operations for the device group that are granted to the user that made this API request
 	// Read Only: true
@@ -208,6 +228,10 @@ func (m *DeviceGroup) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateOciTestResult(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSaasTestResult(formats); err != nil {
 		res = append(res, err)
 	}
@@ -231,6 +255,8 @@ func (m *DeviceGroup) validateAwsTestResult(formats strfmt.Registry) error {
 		if err := m.AwsTestResult.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("awsTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("awsTestResult")
 			}
 			return err
 		}
@@ -248,6 +274,8 @@ func (m *DeviceGroup) validateAzureTestResult(formats strfmt.Registry) error {
 		if err := m.AzureTestResult.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("azureTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("azureTestResult")
 			}
 			return err
 		}
@@ -270,6 +298,8 @@ func (m *DeviceGroup) validateCustomProperties(formats strfmt.Registry) error {
 			if err := m.CustomProperties[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("customProperties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("customProperties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -289,6 +319,8 @@ func (m *DeviceGroup) validateGcpTestResult(formats strfmt.Registry) error {
 		if err := m.GcpTestResult.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("gcpTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("gcpTestResult")
 			}
 			return err
 		}
@@ -306,6 +338,25 @@ func (m *DeviceGroup) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *DeviceGroup) validateOciTestResult(formats strfmt.Registry) error {
+	if swag.IsZero(m.OciTestResult) { // not required
+		return nil
+	}
+
+	if m.OciTestResult != nil {
+		if err := m.OciTestResult.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ociTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ociTestResult")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *DeviceGroup) validateSaasTestResult(formats strfmt.Registry) error {
 	if swag.IsZero(m.SaasTestResult) { // not required
 		return nil
@@ -315,6 +366,8 @@ func (m *DeviceGroup) validateSaasTestResult(formats strfmt.Registry) error {
 		if err := m.SaasTestResult.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("saasTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("saasTestResult")
 			}
 			return err
 		}
@@ -337,6 +390,8 @@ func (m *DeviceGroup) validateSubGroups(formats strfmt.Registry) error {
 			if err := m.SubGroups[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("subGroups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("subGroups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -455,6 +510,26 @@ func (m *DeviceGroup) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateNumOfOciDevices(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOciRegionsInfo(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOciTestResult(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOciTestResultCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePropertyChangeWarningMessage(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRolePrivileges(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -493,9 +568,16 @@ func (m *DeviceGroup) contextValidateAwsRegionsInfo(ctx context.Context, formats
 func (m *DeviceGroup) contextValidateAwsTestResult(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.AwsTestResult != nil {
+
+		if swag.IsZero(m.AwsTestResult) { // not required
+			return nil
+		}
+
 		if err := m.AwsTestResult.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("awsTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("awsTestResult")
 			}
 			return err
 		}
@@ -525,9 +607,16 @@ func (m *DeviceGroup) contextValidateAzureRegionsInfo(ctx context.Context, forma
 func (m *DeviceGroup) contextValidateAzureTestResult(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.AzureTestResult != nil {
+
+		if swag.IsZero(m.AzureTestResult) { // not required
+			return nil
+		}
+
 		if err := m.AzureTestResult.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("azureTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("azureTestResult")
 			}
 			return err
 		}
@@ -559,9 +648,16 @@ func (m *DeviceGroup) contextValidateCustomProperties(ctx context.Context, forma
 	for i := 0; i < len(m.CustomProperties); i++ {
 
 		if m.CustomProperties[i] != nil {
+
+			if swag.IsZero(m.CustomProperties[i]) { // not required
+				return nil
+			}
+
 			if err := m.CustomProperties[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("customProperties" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("customProperties" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -629,9 +725,16 @@ func (m *DeviceGroup) contextValidateGcpRegionsInfo(ctx context.Context, formats
 func (m *DeviceGroup) contextValidateGcpTestResult(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.GcpTestResult != nil {
+
+		if swag.IsZero(m.GcpTestResult) { // not required
+			return nil
+		}
+
 		if err := m.GcpTestResult.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("gcpTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("gcpTestResult")
 			}
 			return err
 		}
@@ -739,10 +842,75 @@ func (m *DeviceGroup) contextValidateNumOfKubernetesDevices(ctx context.Context,
 	return nil
 }
 
+func (m *DeviceGroup) contextValidateNumOfOciDevices(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "numOfOciDevices", "body", int64(m.NumOfOciDevices)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceGroup) contextValidateOciRegionsInfo(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "ociRegionsInfo", "body", string(m.OciRegionsInfo)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceGroup) contextValidateOciTestResult(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OciTestResult != nil {
+
+		if swag.IsZero(m.OciTestResult) { // not required
+			return nil
+		}
+
+		if err := m.OciTestResult.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ociTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ociTestResult")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *DeviceGroup) contextValidateOciTestResultCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "ociTestResultCode", "body", int32(m.OciTestResultCode)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeviceGroup) contextValidatePropertyChangeWarningMessage(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "propertyChangeWarningMessage", "body", string(m.PropertyChangeWarningMessage)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DeviceGroup) contextValidateRolePrivileges(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "rolePrivileges", "body", []string(m.RolePrivileges)); err != nil {
 		return err
+	}
+
+	for i := 0; i < len(m.RolePrivileges); i++ {
+
+		if err := validate.ReadOnly(ctx, "rolePrivileges"+"."+strconv.Itoa(i), "body", string(m.RolePrivileges[i])); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
@@ -751,9 +919,16 @@ func (m *DeviceGroup) contextValidateRolePrivileges(ctx context.Context, formats
 func (m *DeviceGroup) contextValidateSaasTestResult(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SaasTestResult != nil {
+
+		if swag.IsZero(m.SaasTestResult) { // not required
+			return nil
+		}
+
 		if err := m.SaasTestResult.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("saasTestResult")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("saasTestResult")
 			}
 			return err
 		}
@@ -780,9 +955,16 @@ func (m *DeviceGroup) contextValidateSubGroups(ctx context.Context, formats strf
 	for i := 0; i < len(m.SubGroups); i++ {
 
 		if m.SubGroups[i] != nil {
+
+			if swag.IsZero(m.SubGroups[i]) { // not required
+				return nil
+			}
+
 			if err := m.SubGroups[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("subGroups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("subGroups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

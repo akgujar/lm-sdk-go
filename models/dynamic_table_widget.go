@@ -29,11 +29,15 @@ type DynamicTableWidget struct {
 
 	intervalField int32
 
+	isSupportCustomPropertyField bool
+
 	lastUpdatedByField string
 
 	lastUpdatedOnField int64
 
 	nameField *string
+
+	supportCustomPropertyField bool
 
 	themeField string
 
@@ -107,6 +111,16 @@ func (m *DynamicTableWidget) SetInterval(val int32) {
 	m.intervalField = val
 }
 
+// IsSupportCustomProperty gets the is support custom property of this subtype
+func (m *DynamicTableWidget) IsSupportCustomProperty() bool {
+	return m.isSupportCustomPropertyField
+}
+
+// SetIsSupportCustomProperty sets the is support custom property of this subtype
+func (m *DynamicTableWidget) SetIsSupportCustomProperty(val bool) {
+	m.isSupportCustomPropertyField = val
+}
+
 // LastUpdatedBy gets the last updated by of this subtype
 func (m *DynamicTableWidget) LastUpdatedBy() string {
 	return m.lastUpdatedByField
@@ -135,6 +149,16 @@ func (m *DynamicTableWidget) Name() *string {
 // SetName sets the name of this subtype
 func (m *DynamicTableWidget) SetName(val *string) {
 	m.nameField = val
+}
+
+// SupportCustomProperty gets the support custom property of this subtype
+func (m *DynamicTableWidget) SupportCustomProperty() bool {
+	return m.supportCustomPropertyField
+}
+
+// SetSupportCustomProperty sets the support custom property of this subtype
+func (m *DynamicTableWidget) SetSupportCustomProperty(val bool) {
+	m.supportCustomPropertyField = val
 }
 
 // Theme gets the theme of this subtype
@@ -224,11 +248,15 @@ func (m *DynamicTableWidget) UnmarshalJSON(raw []byte) error {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -256,11 +284,15 @@ func (m *DynamicTableWidget) UnmarshalJSON(raw []byte) error {
 
 	result.intervalField = base.Interval
 
+	result.isSupportCustomPropertyField = base.IsSupportCustomProperty
+
 	result.lastUpdatedByField = base.LastUpdatedBy
 
 	result.lastUpdatedOnField = base.LastUpdatedOn
 
 	result.nameField = base.Name
+
+	result.supportCustomPropertyField = base.SupportCustomProperty
 
 	result.themeField = base.Theme
 
@@ -343,11 +375,15 @@ func (m DynamicTableWidget) MarshalJSON() ([]byte, error) {
 
 		Interval int32 `json:"interval,omitempty"`
 
+		IsSupportCustomProperty bool `json:"isSupportCustomProperty,omitempty"`
+
 		LastUpdatedBy string `json:"lastUpdatedBy,omitempty"`
 
 		LastUpdatedOn int64 `json:"lastUpdatedOn,omitempty"`
 
 		Name *string `json:"name"`
+
+		SupportCustomProperty bool `json:"supportCustomProperty,omitempty"`
 
 		Theme string `json:"theme,omitempty"`
 
@@ -366,11 +402,15 @@ func (m DynamicTableWidget) MarshalJSON() ([]byte, error) {
 
 		Interval: m.Interval(),
 
+		IsSupportCustomProperty: m.IsSupportCustomProperty(),
+
 		LastUpdatedBy: m.LastUpdatedBy(),
 
 		LastUpdatedOn: m.LastUpdatedOn(),
 
 		Name: m.Name(),
+
+		SupportCustomProperty: m.SupportCustomProperty(),
 
 		Theme: m.Theme(),
 
@@ -454,6 +494,8 @@ func (m *DynamicTableWidget) validateColumns(formats strfmt.Registry) error {
 			if err := m.Columns[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("columns" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("columns" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -483,6 +525,8 @@ func (m *DynamicTableWidget) validateForecast(formats strfmt.Registry) error {
 		if err := m.Forecast.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("forecast")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("forecast")
 			}
 			return err
 		}
@@ -506,6 +550,8 @@ func (m *DynamicTableWidget) validateRows(formats strfmt.Registry) error {
 			if err := m.Rows[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("rows" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("rows" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -586,9 +632,16 @@ func (m *DynamicTableWidget) contextValidateColumns(ctx context.Context, formats
 	for i := 0; i < len(m.Columns); i++ {
 
 		if m.Columns[i] != nil {
+
+			if swag.IsZero(m.Columns[i]) { // not required
+				return nil
+			}
+
 			if err := m.Columns[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("columns" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("columns" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -611,9 +664,16 @@ func (m *DynamicTableWidget) contextValidateDataSourceFullName(ctx context.Conte
 func (m *DynamicTableWidget) contextValidateForecast(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Forecast != nil {
+
+		if swag.IsZero(m.Forecast) { // not required
+			return nil
+		}
+
 		if err := m.Forecast.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("forecast")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("forecast")
 			}
 			return err
 		}
@@ -627,9 +687,16 @@ func (m *DynamicTableWidget) contextValidateRows(ctx context.Context, formats st
 	for i := 0; i < len(m.Rows); i++ {
 
 		if m.Rows[i] != nil {
+
+			if swag.IsZero(m.Rows[i]) { // not required
+				return nil
+			}
+
 			if err := m.Rows[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("rows" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("rows" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
